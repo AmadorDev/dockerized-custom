@@ -1,0 +1,40 @@
+FROM php:8.2-fpm
+
+COPY ./php-config/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    nodejs \
+    npm \
+    libzip-dev \
+    supervisor \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+COPY . .
+
+RUN composer install --no-dev --optimize-autoloader
+
+RUN npm install && NODE_OPTIONS="--max-old-space-size=1024" npm run build
+
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+# CMD ["php-fpm"]
+
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 9000
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

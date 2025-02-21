@@ -1,0 +1,47 @@
+se debe crear para los volumnes:
+mkdir -p PJ2/storage PJ2/node_modules PJ2/vendor
+
+si sale algun error de instalacion:
+composer require nunomaduro/collision --dev
+php artisan optimize:clear
+exit
+
+docker exec -it laravel_app chmod -R 775 storage bootstrap/cache
+docker exec -it laravel_app chown -R www-data:www-data storage bootstrap/cache
+
+
+docker compose exec laravel bash
+
+-- mas efectivo para reconstruir
+
+
+docker compose stop laravel
+docker compose rm -sfv laravel
+docker compose rm -f laravel 
+docker compose up -d --build laravel
+
+
+docker compose exec laravel npm install
+docker compose exec laravel npm run build
+
+
+# Limpiar caché dentro del contenedor laravel_app
+
+docker exec -it laravel_app php artisan cache:clear ; \
+docker exec -it laravel_app php artisan config:clear ; \
+docker exec -it laravel_app php artisan route:clear ; \
+docker exec -it laravel_app php artisan view:clear ; \
+docker exec -it laravel_app php artisan event:clear ; \
+docker exec -it laravel_app php artisan optimize:clear ; \
+
+docker exec -it laravel_app php artisan config:cache ; \
+docker exec -it laravel_app php artisan route:cache ; \
+docker exec -it laravel_app php artisan view:cache
+
+docker compose restart laravel
+
+docker exec -it laravel_app php -i | grep -E 'upload_max_filesize|post_max_size'
+
+
+
+

@@ -1,0 +1,1 @@
+* * * * * docker exec -u www-data laravel_app php /var/www/artisan schedule:run >> /dev/null 2>&1
